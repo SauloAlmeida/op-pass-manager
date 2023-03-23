@@ -14,6 +14,8 @@ namespace PassManagerAPI.DTO.Input
 
             if (Access.Any() is false)
                 throw new Exception($"It's necessary to inform at least one access.");
+
+            foreach (var item in Access) item.Validate();
         }
 
         public Password ToEntity() => new(Address, Access.Select(s => new PasswordAccess(s.Login, s.Password)));
