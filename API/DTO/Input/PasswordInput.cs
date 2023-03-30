@@ -18,6 +18,6 @@ namespace PassManagerAPI.DTO.Input
             foreach (var item in Access) item.Validate();
         }
 
-        public Password ToEntity() => new(Address, Access.Select(s => new PasswordAccess(s.Login, s.Password)));
+        public static implicit operator Password(PasswordInput input) => new(input.Address, input.Access.Select(s => new PasswordAccess(s.Login, s.Password)));
     }
 }

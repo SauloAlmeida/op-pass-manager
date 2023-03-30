@@ -1,11 +1,20 @@
+using Microsoft.AspNetCore.Mvc;
+using PassManagerAPI.DTO.Input;
+using PassManagerAPI.Entities;
+using PassManagerAPI.Infra.Context;
+using PassManagerAPI.Infra.Repository;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddSingleton<IPassContext, PassContext>();
+builder.Services.AddSingleton<IPassRepository, PassRepository>();
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -14,29 +23,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.MapPost("/pass", async ([FromServices] IPassRepository repository, [FromBody] PasswordInput input) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    input.Validate();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    Password entity = input;
+
+    await repository.AddAsync(entity);
+
+    return Results.NoContent();
 })
-.WithName("GetWeatherForecast")
 .WithOpenApi();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
