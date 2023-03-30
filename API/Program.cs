@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PassManagerAPI.DTO.Input;
+using PassManagerAPI.DTO.Output;
 using PassManagerAPI.Entities;
 using PassManagerAPI.Infra.Context;
 using PassManagerAPI.Infra.Repository;
@@ -32,6 +33,16 @@ app.MapPost("/pass", async ([FromServices] IPassRepository repository, [FromBody
     await repository.AddAsync(entity);
 
     return Results.NoContent();
+})
+.WithOpenApi();
+
+app.MapGet("/pass", async ([FromServices] IPassRepository repository) =>
+{
+    var response = await repository.GetAsync();
+
+    var output = response.Select(p => PasswordOutput.FromEntity(p));
+
+    return Results.Ok(output);
 })
 .WithOpenApi();
 

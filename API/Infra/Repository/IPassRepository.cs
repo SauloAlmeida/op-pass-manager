@@ -6,6 +6,7 @@ namespace PassManagerAPI.Infra.Repository
     public interface IPassRepository
     {
         Task AddAsync(Password entity);
+        Task<IEnumerable<Password>> GetAsync();
     }
 
     public class PassRepository : IPassRepository
@@ -22,6 +23,11 @@ namespace PassManagerAPI.Infra.Repository
             _context.Passwords.Add(entity);
 
             return Task.CompletedTask;
+        }
+
+        public Task<IEnumerable<Password>> GetAsync()
+        {
+            return Task.FromResult(_context.Passwords.AsEnumerable());
         }
     }
 }
